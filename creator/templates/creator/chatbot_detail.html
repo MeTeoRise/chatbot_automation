@@ -2,7 +2,7 @@
 {% block content %}
 {% if object.user == user %}
     <article class="media content-section">
-        <img class="rounded-circle article-img" src="{{ object.user.profile.image.url }}">
+        <img class="rounded-circle chatbot-img" src="{{ object.user.profile.image.url }}">
         <div class="media-body">
             <div class="chatbot-metadata">
                 <a class="ml-1 mr-3" href="{% url 'profile' %}">{{ object.user }}</a>
