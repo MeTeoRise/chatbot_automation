@@ -4,12 +4,12 @@
         <article class="media content-section">
           <img class="rounded-circle article-img" src="{{ chatbot.user.profile.image.url }}">
           <div class="media-body">
-            <div class="article-metadata">
-              <a class="mr-2" href="#">{{ chatbot.user }}</a>
+            <div class="chatbot-metadata">
+              <a class="mr-2" href="{% url 'profile' %}">{{ chatbot.user }}</a>
               <small class="text-muted">{{ chatbot.date_created|date:"F d, Y" }}</small>
             </div>
-            <h2><a class="article-title" href="{% url 'chatbot-detail' chatbot.id %}">{{ chatbot.name }}</a></h2>
-            <p class="article-content">{{ chatbot.description }}</p>
+            <h2><a class="chatbot-title" href="{% url 'chatbot-detail' chatbot.id %}">{{ chatbot.name }}</a></h2>
+            <p class="chatbot-content">{{ chatbot.description }}</p>
           </div>
         </article>
     {% endfor %}

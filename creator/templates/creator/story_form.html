@@ -1,0 +1,19 @@
+{% extends "creator/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Stories</legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Submit</button>
+            </div>
+            <div class="form-group">
+                <a class="btn btn-primary mt-1 mb-1" href="{% url 'chatbot-detail' object.chatbot.id %}">Back</a>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
