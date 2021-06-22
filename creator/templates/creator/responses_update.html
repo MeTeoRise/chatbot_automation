@@ -1,0 +1,11 @@
+{% extends "creator/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h2>Intents</h2>
+<form method="post">
+   {% csrf_token %}
+   {{ formset | crispy}}
+   <button class="btn btn-primary" style="margin:5px;" type="submit">Submit</button>
+   <a class="btn btn-primary" style="margin:5px;" href="{% url 'responses-list' prim_key %}">Back</a>
+</form>
+{% endblock content %}

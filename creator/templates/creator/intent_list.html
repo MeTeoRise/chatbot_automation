@@ -1,0 +1,18 @@
+{% extends "creator/base.html" %}
+{% block content %}
+
+<h2>{{ object_list.0.chatbot.name }} Intents</h2>
+
+{% for intent in object_list %}
+
+      <li class="list-group-item">
+        <a href="{% url 'examples-list' intent.id %}">{{ intent.name }}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'intent-delete' intent.id %}">Remove</a>
+      </li>
+
+{% endfor %}
+<div class="form-group">
+    <a class="btn btn-primary mt-3 mb-1" href="{% url 'intent-update' prim_key %}">Update</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'intent-create' prim_key %}">Add</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'chatbot-detail' prim_key %}">Back</a>
+</div>
+{% endblock content %}

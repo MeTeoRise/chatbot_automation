@@ -9,10 +9,8 @@
                 {{ form|crispy }}
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">Submit</button>
-            </div>
-            <div class="form-group">
-                <a class="btn btn-primary mt-1 mb-1" href="{% url 'chatbot-detail' object.chatbot.id %}">Back</a>
+                <button class="btn btn-outline-info" type="submit">Add</button>
+                <a class="btn btn-outline-info ml-3" href="{% url 'story-list' prim_key %}">Back</a>
             </div>
         </form>
     </div>

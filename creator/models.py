@@ -2,8 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
-from yamlfield.fields import YAMLField
-from .utils import read_default_intents, read_default_stories
+from sort_order_field import SortOrderField
 
 
 class Chatbot(models.Model):
@@ -20,49 +19,96 @@ class Chatbot(models.Model):
 
 
 class Intent(models.Model):
-    yaml = YAMLField(default=read_default_intents())
-    chatbot = models.OneToOneField(
+    name = models.CharField(max_length=100, default="", null=True)
+    chatbot = models.ForeignKey(
         Chatbot,
+        related_name='Chatbot',
         on_delete=models.CASCADE,
-        primary_key=True,
-        default="",
+        default='',
+        blank=True,
+        null=True,
     )
 
     def __str__(self):
-        return self.chatbot.name
+        return self.name
 
     def get_absolute_url(self):
-        return reverse('intent-update', kwargs={'pk': self.pk})
+        return reverse('intent-list', kwargs={'pk': self.pk})
 
     def save(self, *args, **kwargs):
         super(Intent, self).save(*args, **kwargs)
 
 
-class Story(models.Model):
-    yaml = YAMLField(default=read_default_stories())
-    chatbot = models.OneToOneField(
+class Examples(models.Model):
+    example = models.CharField(max_length=200, default="")
+    intent = models.ManyToManyField(Intent)
+
+    def __str__(self):
+        return self.example
+
+    def get_absolute_url(self):
+        return reverse('examples-list', kwargs={'pk': self.pk})
+
+    def save(self, *args, **kwargs):
+        super(Examples, self).save(*args, **kwargs)
+
+
+class Responses(models.Model):
+    name = models.CharField(max_length=100, default="", null=True)
+    response = models.CharField(max_length=100, default="", null=True)
+    chatbot = models.ForeignKey(
         Chatbot,
+        related_name='Chatbot_responses',
         on_delete=models.CASCADE,
-        primary_key=True,
-        default="",
+        default='',
+        blank=True,
+        null=True,
     )
 
     def __str__(self):
-        return self.chatbot.name
+        return self.name
 
     def get_absolute_url(self):
-        return reverse('story-update', kwargs={'pk': self.pk})
+        return reverse('responses-list', kwargs={'pk': self.pk})
+
+    def save(self, *args, **kwargs):
+        super(Responses, self).save(*args, **kwargs)
+
+
+class Story(models.Model):
+    name = models.CharField(max_length=100, default="", null=True)
+    chatbot = models.ForeignKey(
+        Chatbot,
+        related_name='Chatbot_story',
+        on_delete=models.CASCADE,
+        default='',
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('story-list', kwargs={'pk': self.pk})
 
     def save(self, *args, **kwargs):
         super(Story, self).save(*args, **kwargs)
 
-"""
-class Entity(models.Model):
-    name = models.CharField(max_length=100, default="")
+
+class Steps(models.Model):
     intent = models.ForeignKey(Intent, on_delete=models.CASCADE)
-    content = models.TextField()
+    action = models.ForeignKey(Responses, on_delete=models.CASCADE)
+    order = SortOrderField("Sort")
+    story = models.ManyToManyField(Story)
 
     def __str__(self):
-        return self.name
-"""
+        return f'{self.intent.name} {self.action.name}'
+
+    def get_absolute_url(self):
+        return reverse('steps-list', kwargs={'pk': self.pk})
+
+    def save(self, *args, **kwargs):
+        super(Steps, self).save(*args, **kwargs)
+
 

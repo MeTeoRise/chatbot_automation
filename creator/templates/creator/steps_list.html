@@ -1,0 +1,18 @@
+{% extends "creator/base.html" %}
+{% block content %}
+
+<h2>Steps</h2>
+
+{% for step in object_list %}
+
+      <li class="list-group-item">
+        <a href="{% url 'steps-update' url_key %}">{{ step.order }}. Intent: {{ step.intent }}, Action: {{ step.action}}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'steps-delete' step.id %}">Remove</a>
+      </li>
+
+{% endfor %}
+<div class="form-group">
+    <a class="btn btn-primary mt-3 mb-1" href="{% url 'steps-update' url_key %}">Update</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'steps-create' url_key %}">Add</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'story-list' prim_key %}">Back</a>
+</div>
+{% endblock content %}

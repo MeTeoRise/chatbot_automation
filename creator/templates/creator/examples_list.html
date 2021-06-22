@@ -1,0 +1,18 @@
+{% extends "creator/base.html" %}
+{% block content %}
+
+<h2>Examples</h2>
+
+{% for example in object_list %}
+
+      <li class="list-group-item">
+        <a href="{% url 'examples-update' url_key %}">{{ example.example }}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'examples-delete' example.id %}">Remove</a>
+      </li>
+
+{% endfor %}
+<div class="form-group">
+    <a class="btn btn-primary mt-3 mb-1" href="{% url 'examples-update' url_key %}">Update</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'examples-create' url_key %}">Add</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'intent-list' prim_key %}">Back</a>
+</div>
+{% endblock content %}
