@@ -6,7 +6,7 @@
 {% for response in object_list %}
 
       <li class="list-group-item">
-        <a href="{% url 'responses-update' prim_key %}">{{ response.name }}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'responses-delete' response.id %}">Remove</a>
+        <a href="{% url 'utterances-list' response.id %}">{{ response.name }}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'responses-delete' response.id %}">Remove</a>
       </li>
 
 {% endfor %}
@@ -15,4 +15,6 @@
     <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'responses-create' prim_key %}">Add</a>
     <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'chatbot-detail' prim_key %}">Back</a>
 </div>
+<p>Responses are actions that send a message to a user without running any custom code or returning events.</p>
+<p>For more information you can check <a href="https://rasa.com/docs/rasa/domain#responses">Rasa Responses</a>.</p>
 {% endblock content %}

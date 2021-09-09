@@ -4,7 +4,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.encoding import smart_str
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.http import HttpResponse, FileResponse
-from .models import Chatbot, Intent, Examples, Responses, Story, Steps
+from .models import Chatbot, Intent, Examples, Responses, Story, Steps, Utterances, Rule, Action, Slot, Form
 from .utils import chatbot_create, chatbot_delete, chatbot_train, chatbot_start, chatbot_stop
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -266,7 +266,7 @@ class ResponsesListView(LoginRequiredMixin, ListView):
 
 class ResponsesCreateView(LoginRequiredMixin, CreateView):
     model = Responses
-    fields = ['name', 'response', 'chatbot']
+    fields = ['name', 'chatbot']
 
     def form_valid(self, form):
         messages.success(self.request, "Response was created successfully.")
@@ -311,7 +311,7 @@ class ResponsesDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class ResponsesUpdateView(LoginRequiredMixin, ModelFormSetView):
     model = Responses
     template_name = 'creator/responses_update.html'
-    fields = ['name', 'response', 'chatbot']
+    fields = ['name', 'chatbot']
 
     def get_queryset(self):
         response = Responses.objects.filter(chatbot_id=self.kwargs['pk'])
@@ -320,6 +320,76 @@ class ResponsesUpdateView(LoginRequiredMixin, ModelFormSetView):
     def get_context_data(self, **kwargs):
         context = super(ResponsesUpdateView, self).get_context_data(**kwargs)
         context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class UtterancesListView(LoginRequiredMixin, ListView):
+    model = Utterances
+
+    def get_queryset(self):
+        return Utterances.objects.filter(response=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(UtterancesListView, self).get_context_data(**kwargs)
+        response = get_object_or_404(Responses, pk=self.kwargs['pk'])
+        chatbot = get_object_or_404(Chatbot, pk=response.chatbot.pk)
+        context['prim_key'] = chatbot.pk
+        context['url_key'] = self.kwargs['pk']
+        return context
+
+
+class UpdateUtterances(ModelFormSetView):
+    model = Utterances
+    template_name = 'creator/utterances_update.html'
+    fields = ['text', 'image', 'response']
+
+    def get_queryset(self):
+        utterances = Utterances.objects.filter(response=self.kwargs['pk'])
+        return utterances
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateUtterances, self).get_context_data(**kwargs)
+        response = get_object_or_404(Responses, pk=self.kwargs['pk'])
+        context['prim_key'] = response.pk
+        return context
+
+
+class UtterancesCreateView(LoginRequiredMixin, CreateView):
+    model = Utterances
+    fields = ['text', 'image', 'response']
+
+    def form_valid(self, form):
+        messages.success(self.request, "Utterance was created successfully.")
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self, **kwargs):
+        return reverse('utterances-list', kwargs={'pk': self.kwargs['pk']})
+
+    def get_context_data(self, **kwargs):
+        context = super(UtterancesCreateView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class UtterancesDeleteView(LoginRequiredMixin, DeleteView):
+    model = Utterances
+
+    def get_success_url(self):
+        return reverse('utterances-list', kwargs={'pk': self.object.response.all()[0].pk})
+
+    success_message = "Utterance was deleted successfully."
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(UtterancesDeleteView, self).delete(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UtterancesDeleteView, self).get_context_data(**kwargs)
+        utterance = get_object_or_404(Utterances, pk=self.kwargs['pk'])
+        response = get_object_or_404(Responses, pk=utterance.response.all()[0].pk)
+        context['prim_key'] = response.pk
+        context['url_key'] = utterance.pk
         return context
 
 
@@ -428,7 +498,7 @@ class StepsListView(LoginRequiredMixin, ListView):
 class UpdateSteps(ModelFormSetView):
     model = Steps
     template_name = 'creator/steps_update.html'
-    fields = ['intent', 'action', 'order', 'story']
+    fields = ['intent', 'response', 'action', 'form', 'order', 'story']
 
     def get_queryset(self):
         steps = Steps.objects.filter(story=self.kwargs['pk']).order_by('order')
@@ -443,7 +513,7 @@ class UpdateSteps(ModelFormSetView):
 
 class StepsCreateView(LoginRequiredMixin, CreateView):
     model = Steps
-    fields = ['intent', 'action', 'order', 'story']
+    fields = ['intent', 'response', 'action', 'form', 'order', 'story']
 
     def form_valid(self, form):
         messages.success(self.request, "Step was created successfully.")
@@ -480,22 +550,312 @@ class StepsDeleteView(LoginRequiredMixin, DeleteView):
         return context
 
 
+class RulesListView(LoginRequiredMixin, ListView):
+    model = Rule
+
+    def get_queryset(self):
+        return Rule.objects.filter(chatbot_id=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(RulesListView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class RuleCreateView(LoginRequiredMixin, CreateView):
+    model = Rule
+    fields = ['name', 'intent', 'action', 'chatbot']
+
+    def form_valid(self, form):
+        messages.success(self.request, "Rule was created successfully.")
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('rules-list', kwargs={'pk': self.object.chatbot.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super(RuleCreateView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class RulesDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Rule
+
+    def get_success_url(self):
+        return reverse('rules-list', kwargs={'pk': self.object.chatbot.pk})
+
+    success_message = "Rule was deleted successfully."
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(RulesDeleteView, self).delete(request, *args, **kwargs)
+
+    def test_func(self):
+        rule = self.get_object()
+        if self.request.user == rule.chatbot.user:
+            return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super(RulesDeleteView, self).get_context_data(**kwargs)
+        rule = get_object_or_404(Rule, pk=self.kwargs['pk'])
+        chatbot = get_object_or_404(Chatbot, pk=rule.chatbot.pk)
+        context['prim_key'] = chatbot.pk
+        return context
+
+
+class RulesUpdateView(LoginRequiredMixin, ModelFormSetView):
+    model = Rule
+    template_name = 'creator/rule_update.html'
+    fields = ['name', 'intent', 'action', 'chatbot']
+
+    def get_queryset(self):
+        rule = Rule.objects.filter(chatbot_id=self.kwargs['pk'])
+        return rule
+
+    def get_context_data(self, **kwargs):
+        context = super(RulesUpdateView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class ActionsListView(LoginRequiredMixin, ListView):
+    model = Action
+
+    def get_queryset(self):
+        return Action.objects.filter(chatbot_id=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(ActionsListView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class ActionCreateView(LoginRequiredMixin, CreateView):
+    model = Action
+    fields = ['name', 'run_contents', 'chatbot']
+
+    def form_valid(self, form):
+        messages.success(self.request, "Action was created successfully.")
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('actions-list', kwargs={'pk': self.object.chatbot.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super(ActionCreateView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class ActionsDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Action
+
+    def get_success_url(self):
+        return reverse('actions-list', kwargs={'pk': self.object.chatbot.pk})
+
+    success_message = "Action was deleted successfully."
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(ActionsDeleteView, self).delete(request, *args, **kwargs)
+
+    def test_func(self):
+        action = self.get_object()
+        if self.request.user == action.chatbot.user:
+            return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super(ActionsDeleteView, self).get_context_data(**kwargs)
+        action = get_object_or_404(Action, pk=self.kwargs['pk'])
+        chatbot = get_object_or_404(Chatbot, pk=action.chatbot.pk)
+        context['prim_key'] = chatbot.pk
+        return context
+
+
+class ActionsUpdateView(LoginRequiredMixin, ModelFormSetView):
+    model = Action
+    template_name = 'creator/action_update.html'
+    fields = ['name', 'run_contents', 'chatbot']
+
+    def get_queryset(self):
+        action = Action.objects.filter(chatbot_id=self.kwargs['pk'])
+        return action
+
+    def get_context_data(self, **kwargs):
+        context = super(ActionsUpdateView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class SlotsListView(LoginRequiredMixin, ListView):
+    model = Slot
+
+    def get_queryset(self):
+        return Slot.objects.filter(chatbot_id=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(SlotsListView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class SlotCreateView(LoginRequiredMixin, CreateView):
+    model = Slot
+    fields = ['name', 'type', 'influence_conversation', 'value', 'form', 'chatbot']
+
+    def form_valid(self, form):
+        messages.success(self.request, "Slot was created successfully.")
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('slots-list', kwargs={'pk': self.object.chatbot.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super(SlotCreateView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class SlotsDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Slot
+
+    def get_success_url(self):
+        return reverse('slots-list', kwargs={'pk': self.object.chatbot.pk})
+
+    success_message = "Slot was deleted successfully."
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(SlotsDeleteView, self).delete(request, *args, **kwargs)
+
+    def test_func(self):
+        slot = self.get_object()
+        if self.request.user == slot.chatbot.user:
+            return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super(SlotsDeleteView, self).get_context_data(**kwargs)
+        slot = get_object_or_404(Slot, pk=self.kwargs['pk'])
+        chatbot = get_object_or_404(Chatbot, pk=slot.chatbot.pk)
+        context['prim_key'] = chatbot.pk
+        return context
+
+
+class SlotsUpdateView(LoginRequiredMixin, ModelFormSetView):
+    model = Slot
+    template_name = 'creator/slot_update.html'
+    fields = ['name', 'type', 'influence_conversation', 'value', 'form', 'chatbot']
+
+    def get_queryset(self):
+        slot = Slot.objects.filter(chatbot_id=self.kwargs['pk'])
+        return slot
+
+    def get_context_data(self, **kwargs):
+        context = super(SlotsUpdateView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class FormsListView(LoginRequiredMixin, ListView):
+    model = Form
+
+    def get_queryset(self):
+        return Form.objects.filter(chatbot_id=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(FormsListView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class FormCreateView(LoginRequiredMixin, CreateView):
+    model = Form
+    fields = ['name', 'intent', 'chatbot']
+
+    def form_valid(self, form):
+        messages.success(self.request, "Form was created successfully.")
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('forms-list', kwargs={'pk': self.object.chatbot.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super(FormCreateView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
+class FormsDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Form
+
+    def get_success_url(self):
+        return reverse('forms-list', kwargs={'pk': self.object.chatbot.pk})
+
+    success_message = "Form was deleted successfully."
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(FormsDeleteView, self).delete(request, *args, **kwargs)
+
+    def test_func(self):
+        form = self.get_object()
+        if self.request.user == form.chatbot.user:
+            return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super(FormsDeleteView, self).get_context_data(**kwargs)
+        form = get_object_or_404(Slot, pk=self.kwargs['pk'])
+        chatbot = get_object_or_404(Chatbot, pk=form.chatbot.pk)
+        context['prim_key'] = chatbot.pk
+        return context
+
+
+class FormsUpdateView(LoginRequiredMixin, ModelFormSetView):
+    model = Form
+    template_name = 'creator/form_update.html'
+    fields = ['name', 'intent', 'chatbot']
+
+    def get_queryset(self):
+        form = Form.objects.filter(chatbot_id=self.kwargs['pk'])
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super(FormsUpdateView, self).get_context_data(**kwargs)
+        context['prim_key'] = self.kwargs['pk']
+        return context
+
+
 def training(request, pk):
     chatbot = get_object_or_404(Chatbot, pk=pk)
     intents = Intent.objects.filter(chatbot=pk).values_list('id', 'name')
     examples = Examples.objects.filter(intent__chatbot=pk).values_list('intent', 'example')
-    responses = Responses.objects.filter(chatbot=pk).values_list('name', 'response')
+    responses = Responses.objects.filter(chatbot=pk).values_list('id', 'name')
+    utterances = Utterances.objects.filter(response__chatbot=pk).values_list('response', 'text', 'image')
     stories = Story.objects.filter(chatbot=pk).values_list('id', 'name')
-    steps = Steps.objects.filter(story__chatbot=pk).values_list('intent__name', 'action__name', 'order', 'story').order_by('order')
+    steps = Steps.objects.filter(story__chatbot=pk).values_list('intent__name', 'response__name', 'action__name', 'form__name','order', 'story').order_by('order')
+    rules = Rule.objects.filter(chatbot=pk).values_list('name', 'intent__name', 'action__name')
+    actions = Action.objects.filter(chatbot=pk).values_list('name', 'run_contents', 'chatbot')
+    forms = Form.objects.filter(chatbot=pk).values_list('id', 'name', 'intent__name')
+    slots = Slot.objects.filter(form__chatbot=pk).values_list('name', 'type', 'influence_conversation', 'value', 'form')
 
-    chatbot_train(chatbot, intents, examples, responses, stories, steps)
+    chatbot_train(chatbot, intents, examples, responses, utterances, stories, steps, rules, actions, forms, slots)
     messages.success(request, 'Your chatbot is being trained, please wait some minutes to let it finish')
     return redirect(chatbot)
 
 
 def testing(request, pk):
     chatbot = get_object_or_404(Chatbot, pk=pk)
-    chatbot_start(chatbot)
+    actions = Action.objects.filter(chatbot=pk).values_list('name', 'run_contents', 'chatbot')
+    chatbot_start(chatbot, actions)
     context = {'chatbot': chatbot}
     return render(request, 'chatbot-widget/index.html', context)
 

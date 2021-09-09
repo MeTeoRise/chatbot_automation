@@ -142,3 +142,5 @@ chatbots/
 
 media/profile_pics
 /venv/
+
+.idea/

@@ -1,0 +1,20 @@
+{% extends "creator/base.html" %}
+{% block content %}
+
+<h2>{{ object_list.0.chatbot.name }} Actions</h2>
+
+{% for action in object_list %}
+
+      <li class="list-group-item">
+        <a href="{% url 'actions-update' action.chatbot.id %}">{{ action.name }}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'actions-delete' action.id %}">Remove</a>
+      </li>
+
+{% endfor %}
+<div class="form-group">
+    <a class="btn btn-primary mt-3 mb-1" href="{% url 'actions-update' prim_key %}">Update</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'actions-create' prim_key %}">Add</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'chatbot-detail' prim_key %}">Back</a>
+</div>
+<p>Actions are the things your bot can actually do. For example, an action could respond to a user, make an external API call, query a database, or just about anything!</p>
+<p>For more information you can check <a href="https://rasa.com/docs/rasa/domain#actions">Rasa Actions</a>.</p>
+{% endblock content %}

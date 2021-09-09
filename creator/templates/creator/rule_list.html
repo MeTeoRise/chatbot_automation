@@ -1,0 +1,20 @@
+{% extends "creator/base.html" %}
+{% block content %}
+
+<h2>{{ object_list.0.chatbot.name }} Rules</h2>
+
+{% for rule in object_list %}
+
+      <li class="list-group-item">
+        <a href="{% url 'rules-update' rule.chatbot.id %}">{{ rule.name }}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'rules-delete' rule.id %}">Remove</a>
+      </li>
+
+{% endfor %}
+<div class="form-group">
+    <a class="btn btn-primary mt-3 mb-1" href="{% url 'rules-update' prim_key %}">Update</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'rules-create' prim_key %}">Add</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'chatbot-detail' prim_key %}">Back</a>
+</div>
+<p>Rules describe short pieces of conversations that should always follow the same path.</p>
+<p>For more information you can check <a href="https://rasa.com/docs/rasa/rules">Rasa Rules</a>.</p>
+{% endblock content %}

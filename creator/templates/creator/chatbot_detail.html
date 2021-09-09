@@ -15,13 +15,26 @@
             </div>
             <h2 class="chatbot-title">{{ object.name }}</h2>
             <p class="chatbot-content">{{ object.description }}</p>
-            <a class="btn btn-primary mt-1 mb-2" href="{% url 'intent-list' object.id %}">Intents</a>
-            <a class="btn btn-primary mt-1 mb-2" href="{% url 'responses-list' object.id %}">Responses</a>
-            <a class="btn btn-primary mt-1 mb-2" href="{% url 'story-list' object.id %}">Stories</a>
-            <a class="btn btn-outline-primary mt-1 mb-2 ml-4" href="{% url 'chatbot-train' object.id %}">Train</a>
-            <a class="btn btn-outline-primary mt-1 mb-2 ml-4" href="{% url 'chatbot-test' object.id %}">Test it out!</a>
-
+            <div class="d-flex bd-highlight">
+                <div class="p-2 bd-highlight">
+                    <a class="btn btn-primary mt-1" href="{% url 'intent-list' object.id %}">Intents</a>
+                    <a class="btn btn-primary mt-1" href="{% url 'responses-list' object.id %}">Responses</a>
+                    <a class="btn btn-primary mt-1" href="{% url 'story-list' object.id %}">Stories</a>
+                </div>
+            </div>
+            <div class="d-flex bd-highlight">
+                <div class="p-2 bd-highlight">
+                    <a class="btn btn-primary mb-2" href="{% url 'rules-list' object.id %}">Rules</a>
+                    <a class="btn btn-primary mb-2" href="{% url 'slots-list' object.id %}">Slots</a>
+                    <a class="btn btn-primary mb-2" href="{% url 'forms-list' object.id %}">Forms</a>
+                    <a class="btn btn-primary mb-2" href="{% url 'actions-list' object.id %}">Actions</a>
+                </div>
+                <div class="p-2 bd-highlight">
+                    <a class="btn btn-outline-primary mb-2 ml-4" href="{% url 'chatbot-train' object.id %}">Train</a>
+                    <a class="btn btn-outline-primary mb-2 ml-4" href="{% url 'chatbot-test' object.id %}">Test it out!</a>                </div>
+                </div>
         </div>
     </article>
+    <p>For information about Rasa Chatbots you can read further on <a href="https://rasa.com/docs/rasa/">Rasa Docs</a>.</p>
 {% endif %}
 {% endblock content %}

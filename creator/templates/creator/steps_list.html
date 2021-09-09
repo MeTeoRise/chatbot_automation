@@ -6,7 +6,7 @@
 {% for step in object_list %}
 
       <li class="list-group-item">
-        <a href="{% url 'steps-update' url_key %}">{{ step.order }}. Intent: {{ step.intent }}, Action: {{ step.action}}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'steps-delete' step.id %}">Remove</a>
+        <a href="{% url 'steps-update' url_key %}">{{ step.order }}. {% if step.intent != None %} Intent: {{step.intent }}, {% endif %}  {% if step.response != None %}Response: {{ step.response }} {% endif %}{% if step.action != None %},Action:{{ step.action }} {% endif %} {% if step.form != None %}, Form: {{step.form }}{% endif %} </a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'steps-delete' step.id %}">Remove</a>
       </li>
 
 {% endfor %}

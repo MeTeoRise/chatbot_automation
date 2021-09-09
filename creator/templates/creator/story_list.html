@@ -15,4 +15,7 @@
     <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'story-create' prim_key %}">Add</a>
     <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'chatbot-detail' prim_key %}">Back</a>
 </div>
+<p>A story is a representation of a conversation between a user and an AI assistant, converted into a specific format
+    where user inputs are expressed as intents (and entities when necessary), while the assistant's responses and actions are expressed as action names.</p>
+<p>For more information you can check <a href="https://rasa.com/docs/rasa/stories">Rasa Stories</a>.</p>
 {% endblock content %}

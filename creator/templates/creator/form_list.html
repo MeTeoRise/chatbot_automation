@@ -1,0 +1,20 @@
+{% extends "creator/base.html" %}
+{% block content %}
+
+<h2>{{ object_list.0.chatbot.name }} Forms</h2>
+
+{% for form in object_list %}
+
+      <li class="list-group-item">
+        <a href="{% url 'slots-list' form.chatbot.id %}">{{ form.name }}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'forms-delete' form.id %}">Remove</a>
+      </li>
+
+{% endfor %}
+<div class="form-group">
+    <a class="btn btn-primary mt-3 mb-1" href="{% url 'forms-update' prim_key %}">Update</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'forms-create' prim_key %}">Add</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'chatbot-detail' prim_key %}">Back</a>
+</div>
+<p>Forms are a special type of action meant to help your assistant collect information from a user.</p>
+<p>For more information you can check <a href="https://rasa.com/docs/rasa/domain#forms">Rasa Forms</a>.</p>
+{% endblock content %}

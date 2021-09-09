@@ -1,0 +1,20 @@
+{% extends "creator/base.html" %}
+{% block content %}
+
+<h2>{{ object_list.0.chatbot.name }} Slots</h2>
+
+{% for slot in object_list %}
+
+      <li class="list-group-item">
+        <a href="{% url 'slots-update' slot.chatbot.id %}">{{ slot.name }}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'slots-delete' slot.id %}">Remove</a>
+      </li>
+
+{% endfor %}
+<div class="form-group">
+    <a class="btn btn-primary mt-3 mb-1" href="{% url 'slots-update' prim_key %}">Update</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'slots-create' prim_key %}">Add</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'chatbot-detail' prim_key %}">Back</a>
+</div>
+<p>Slots are your bot's memory. They act as a key-value store which can be used to store information the user provided (e.g their home city) as well as information gathered about the outside world (e.g. the result of a database query).</p>
+<p>For more information you can check <a href="https://rasa.com/docs/rasa/domain#slots">Rasa Slots</a>.</p>
+{% endblock content %}

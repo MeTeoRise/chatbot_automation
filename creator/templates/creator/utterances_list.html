@@ -1,0 +1,18 @@
+{% extends "creator/base.html" %}
+{% block content %}
+
+<h2>Utterances</h2>
+
+{% for obj in object_list %}
+
+      <li class="list-group-item">
+        <a href="{% url 'utterances-update' url_key %}">{{obj.text}}</a><a class="btn btn-outline-danger ml-5 float-sm-end" href="{% url 'utterances-delete' obj.id %}">Remove</a>
+      </li>
+
+{% endfor %}
+<div class="form-group">
+    <a class="btn btn-primary mt-3 mb-1" href="{% url 'utterances-update' url_key %}">Update</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'utterances-create' url_key %}">Add</a>
+    <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'responses-list' prim_key %}">Back</a>
+</div>
+{% endblock content %}

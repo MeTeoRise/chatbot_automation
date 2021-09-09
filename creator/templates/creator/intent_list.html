@@ -15,4 +15,6 @@
     <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'intent-create' prim_key %}">Add</a>
     <a class="btn btn-primary mt-3 mb-1 ml-3" href="{% url 'chatbot-detail' prim_key %}">Back</a>
 </div>
+<p>NLU training data consists of example user utterances categorized by intent. To make it easier to use your intents, give them names that relate to what the user wants to accomplish with that intent, keep them in lowercase, and avoid spaces and special characters.</p>
+<p>For more information you can check <a href="https://rasa.com/docs/rasa/nlu-training-data">Rasa Intents</a>.</p>
 {% endblock content %}
